@@ -282,11 +282,8 @@ if(NOT WIN32)
 	include(GNUInstallDirs)
 endif()
 
-# Documentation
-add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
-if(NOT BUILD_DOCS)
-	set_property(TARGET doc PROPERTY EXCLUDE_FROM_ALL ON)
-endif()
+# Documentation (skipped - doc submodule not cloned)
+# add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
 
 # Static analysis
 if(ANALYZE)
