@@ -1,3 +1,74 @@
+# ngscopeclient and scopehal-apps (compscirunner fork)
+
+This fork adds native drivers for:
+
+- **SainSmart DDS120** oscilloscope — driver `sainsmart-dds120`
+- **JDS2600** DDS function generator — driver `jds2600`
+
+Both connect via [scopebridge](https://github.com/compscirunner/scopebridge), a Python SCPI TCP bridge.
+
+## Building this fork
+
+### 1. Clone and set up submodules
+
+```bash
+git clone https://github.com/compscirunner/scopehal-apps
+cd scopehal-apps
+
+# lib submodule relative URL doesn't resolve correctly — clone directly
+git clone https://github.com/compscirunner/scopehal lib
+
+# Fix nested submodule URLs inside lib
+cd lib
+git config submodule.xptools.url https://github.com/ngscopeclient/xptools.git
+git config submodule.log.url https://github.com/ngscopeclient/logtools.git
+git config submodule.VkFFT.url https://github.com/DTolm/VkFFT.git
+git submodule update --init --recursive
+cd ..
+
+# Init src submodules
+git submodule update --init \
+  src/imgui src/imgui-node-editor src/ImGuiFileDialog \
+  src/nativefiledialog-extended src/imgui_markdown
+```
+
+### 2. Install build dependencies (Ubuntu / Pop!_OS 24.04)
+
+```bash
+sudo apt-get install -y \
+  cmake ninja-build pkg-config build-essential \
+  libglfw3-dev libglew-dev libvulkan-dev vulkan-utility-libraries-dev \
+  libyaml-cpp-dev libsigc++-2.0-dev libgtk-3-dev libhidapi-dev \
+  libpng-dev catch2 spirv-tools glslang-tools glslang-dev glslc
+```
+
+### 3. Build
+
+```bash
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+ninja -C build -j$(nproc)
+# Binary: build/src/ngscopeclient/ngscopeclient
+```
+
+## Connecting instruments
+
+Start scopebridge before launching ngscopeclient.
+
+| Instrument | scopebridge command | Driver | Port |
+|---|---|---|---|
+| SainSmart DDS120 | `python -m scopebridge.run sigrok --port 5025` | `sainsmart-dds120` | 5025 |
+| JDS2600 AWG | `python -m scopebridge.run jds2600 --port 5026` | `jds2600` | 5026 |
+| Rigol DS1052E | direct USBTMC, no bridge needed | `rigol` | `/dev/usbtmc0` |
+
+## Pulling upstream updates
+
+```bash
+git fetch upstream && git merge upstream/master
+cd lib && git fetch upstream && git merge upstream/master && cd ..
+```
+
+---
+
 # ngscopeclient and scopehal-apps
 
 This is the top level repository for ngscopeclient, as well as the unit tests for libscopehal.
